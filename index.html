@@ -1,0 +1,1723 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petualangan Dunia Rasio - Media Pembelajaran Interaktif Kelas 6 SD</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            blue: '#4A90E2',
+                            yellow: '#F5A623',
+                            green: '#7ED321',
+                            purple: '#9013FE',
+                            orange: '#FF7A00',
+                            pink: '#FF4081',
+                            dark: '#1E293B',
+                            light: '#F8FAFC'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Comic Neue', 'Fredoka', 'Quicksand', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Fredoka', 'Quicksand', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            background-color: #F0F9FF;
+        }
+
+        /* Animations */
+        @keyframes bounce-gentle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        .animate-bounce-gentle {
+            animation: bounce-gentle 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(74, 144, 226, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(74, 144, 226, 0.8); }
+        }
+        .animate-pulse-glow {
+            animation: pulse-glow 2s infinite;
+        }
+
+        .card-hover {
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .card-hover:hover {
+            transform: translateY(-6px) scale(1.02);
+        }
+
+        /* Glassmorphism background */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.7);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #E2E8F0;
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3B82F6;
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2563EB;
+        }
+
+        /* Drag and Drop styling */
+        .draggable-item {
+            cursor: grab;
+            touch-action: none;
+        }
+        .draggable-item:active {
+            cursor: grabbing;
+        }
+        .drop-zone {
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+        .drop-zone.drag-over {
+            border-color: #3B82F6;
+            background-color: #EFF6FF;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col justify-between overflow-x-hidden">
+
+    <!-- TOP AUDIO CONTROL & SCORE BAR (VISIBLE AFTER LOGIN) -->
+    <header id="global-header" class="hidden bg-white shadow-md border-b-4 border-blue-400 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-2 flex justify-between items-center">
+            <!-- User Info -->
+            <div class="flex items-center gap-3">
+                <div id="header-avatar" class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-xl shadow border-2 border-blue-400">
+                    👦
+                </div>
+                <div>
+                    <h3 id="header-user-name" class="font-bold text-slate-800 text-base leading-tight">Penjelajah</h3>
+                    <p id="header-user-class" class="text-xs text-blue-600 font-semibold">Kelas 6 SD</p>
+                </div>
+            </div>
+
+            <!-- Stats & Navigation Controls -->
+            <div class="flex items-center gap-4">
+                <div class="bg-amber-100 border-2 border-amber-400 px-3 py-1 rounded-full flex items-center gap-2 shadow-sm">
+                    <span class="text-xl">⭐</span>
+                    <span id="header-stars" class="font-bold text-amber-800 text-sm">0 XP</span>
+                </div>
+                <div class="bg-purple-100 border-2 border-purple-400 px-3 py-1 rounded-full flex items-center gap-2 shadow-sm hidden md:flex">
+                    <span class="text-xl">🏆</span>
+                    <span id="header-badge" class="font-bold text-purple-800 text-xs">Penjelajah Pemula</span>
+                </div>
+                
+                <!-- Audio Toggle -->
+                <button id="audio-toggle-btn" onclick="toggleAudio()" class="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 border-2 border-slate-300 flex items-center justify-center text-slate-700 transition">
+                    <i class="fas fa-volume-up text-lg"></i>
+                </button>
+
+                <!-- Back to Menu Button -->
+                <button id="home-btn" onclick="showScreen('dashboard-screen')" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-xl font-bold text-sm shadow flex items-center gap-1 transition">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <span class="hidden sm:inline">Peta Menu</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER (SPA SCREENS) -->
+    <main id="app-container" class="flex-grow flex items-center justify-center p-3 sm:p-6">
+        
+        <!-- 1. HALAMAN LOGIN / IDENTITAS -->
+        <section id="login-screen" class="w-full max-w-xl glass-panel rounded-3xl p-6 sm:p-10 shadow-2xl border-4 border-blue-400 text-center relative overflow-hidden">
+            <div class="absolute -top-10 -left-10 w-32 h-32 bg-yellow-300 rounded-full opacity-30 blur-xl"></div>
+            <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-blue-300 rounded-full opacity-30 blur-xl"></div>
+
+            <div class="inline-block bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full font-bold text-sm mb-3 shadow-inner">
+                🚀 MPI Matematika Kurikulum Merdeka Fase C
+            </div>
+
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-blue-600 mb-2 leading-tight">
+                PETUALANGAN DUNIA RASIO
+            </h1>
+            <p class="text-slate-600 font-semibold mb-6 text-sm sm:text-base">
+                Ayo Jadi Penjelajah Matematika Hebat Kelas VI!
+            </p>
+
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-5 text-left">
+                <div>
+                    <label class="block text-slate-700 font-bold mb-1 text-sm">Nama Penjelajah:</label>
+                    <input type="text" id="input-name" required placeholder="Masukkan nama lengkapmu..." class="w-full px-4 py-3 rounded-2xl border-2 border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none text-slate-800 font-bold transition">
+                </div>
+
+                <div>
+                    <label class="block text-slate-700 font-bold mb-1 text-sm">Kelas / Rombel:</label>
+                    <input type="text" id="input-class" required placeholder="Contoh: VI-A / Kelas 6 SD" class="w-full px-4 py-3 rounded-2xl border-2 border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none text-slate-800 font-bold transition">
+                </div>
+
+                <div>
+                    <label class="block text-slate-700 font-bold mb-2 text-sm">Pilih Karakter Avatar Belajarmu:</label>
+                    <div class="grid grid-cols-4 gap-3">
+                        <label class="avatar-option cursor-pointer">
+                            <input type="radio" name="avatar" value="👦" checked class="peer hidden">
+                            <div class="p-3 bg-white border-4 border-slate-200 peer-checked:border-blue-500 peer-checked:bg-blue-50 rounded-2xl text-center text-3xl transition transform peer-checked:scale-105 shadow">
+                                👦
+                            </div>
+                        </label>
+                        <label class="avatar-option cursor-pointer">
+                            <input type="radio" name="avatar" value="👧" class="peer hidden">
+                            <div class="p-3 bg-white border-4 border-slate-200 peer-checked:border-blue-500 peer-checked:bg-blue-50 rounded-2xl text-center text-3xl transition transform peer-checked:scale-105 shadow">
+                                👧
+                            </div>
+                        </label>
+                        <label class="avatar-option cursor-pointer">
+                            <input type="radio" name="avatar" value="🧑‍🚀" class="peer hidden">
+                            <div class="p-3 bg-white border-4 border-slate-200 peer-checked:border-blue-500 peer-checked:bg-blue-50 rounded-2xl text-center text-3xl transition transform peer-checked:scale-105 shadow">
+                                🧑‍🚀
+                            </div>
+                        </label>
+                        <label class="avatar-option cursor-pointer">
+                            <input type="radio" name="avatar" value="🧙‍♂️" class="peer hidden">
+                            <div class="p-3 bg-white border-4 border-slate-200 peer-checked:border-blue-500 peer-checked:bg-blue-50 rounded-2xl text-center text-3xl transition transform peer-checked:scale-105 shadow">
+                                🧙‍♂️
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full py-4 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-extrabold text-lg rounded-2xl shadow-lg border-b-4 border-indigo-800 transition transform active:scale-95 flex items-center justify-center gap-2">
+                    <span>MULAI PETUALANGAN!</span>
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
+        </section>
+
+        <!-- 2. HALAMAN DASHBOARD / MENU UTAMA -->
+        <section id="dashboard-screen" class="hidden w-full max-w-5xl space-y-6">
+            <!-- Welcome Banner -->
+            <div class="glass-panel p-6 rounded-3xl border-4 border-yellow-400 shadow-xl flex flex-col md:flex-row justify-between items-center gap-4 bg-gradient-to-r from-amber-50 to-orange-50">
+                <div class="flex items-center gap-4">
+                    <div id="dash-avatar" class="w-16 h-16 bg-yellow-400 rounded-2xl flex items-center justify-center text-4xl shadow-md border-2 border-white">
+                        👦
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-extrabold text-slate-800">
+                            Halo, <span id="dash-user-name" class="text-blue-600">Penjelajah</span>! 🧭
+                        </h2>
+                        <p class="text-slate-600 text-sm font-semibold">
+                            Siap menjelajahi rahasia perbandingan benda hari ini?
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="text-right">
+                        <span class="text-xs text-slate-500 font-bold block">LEVEL PENJELAJAH</span>
+                        <span id="dash-badge-name" class="font-extrabold text-purple-700 bg-purple-100 px-3 py-1 rounded-lg text-sm border border-purple-300 inline-block">
+                            Penjelajah Pemula
+                        </span>
+                    </div>
+                    <button onclick="resetProgress()" class="bg-red-100 hover:bg-red-200 text-red-600 p-2.5 rounded-xl border border-red-300 text-xs font-bold transition" title="Reset Progres Belajar">
+                        <i class="fas fa-redo-alt"></i> Reset
+                    </button>
+                </div>
+            </div>
+
+            <!-- Menu Grid Peta Petualangan -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                
+                <!-- Menu 1: Petunjuk -->
+                <div onclick="showScreen('guide-screen')" class="glass-panel p-5 rounded-3xl border-4 border-cyan-400 shadow-lg card-hover cursor-pointer flex items-center gap-4 bg-gradient-to-br from-cyan-50 to-white">
+                    <div class="w-14 h-14 rounded-2xl bg-cyan-400 text-white flex items-center justify-center text-2xl shadow-md">
+                        📖
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-lg text-slate-800">1. Petunjuk</h3>
+                        <p class="text-xs text-slate-500">Cara penggunaan MPI</p>
+                    </div>
+                </div>
+
+                <!-- Menu 2: Tujuan Pembelajaran -->
+                <div onclick="showScreen('objectives-screen')" class="glass-panel p-5 rounded-3xl border-4 border-emerald-400 shadow-lg card-hover cursor-pointer flex items-center gap-4 bg-gradient-to-br from-emerald-50 to-white">
+                    <div class="w-14 h-14 rounded-2xl bg-emerald-400 text-white flex items-center justify-center text-2xl shadow-md">
+                        🎯
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-lg text-slate-800">2. Tujuan Belajar</h3>
+                        <p class="text-xs text-slate-500">Target capaian Fase C</p>
+                    </div>
+                </div>
+
+                <!-- Menu 3: Materi Pembelajaran -->
+                <div onclick="showScreen('material-screen')" class="glass-panel p-5 rounded-3xl border-4 border-blue-500 shadow-lg card-hover cursor-pointer flex items-center gap-4 bg-gradient-to-br from-blue-50 to-white">
+                    <div class="w-14 h-14 rounded-2xl bg-blue-500 text-white flex items-center justify-center text-2xl shadow-md">
+                        📚
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-lg text-slate-800">3. Materi Rasio</h3>
+                        <p class="text-xs text-slate-500">Konsep membandingkan benda</p>
+                    </div>
+                </div>
+
+                <!-- Menu 4: Eksperimen Rasio -->
+                <div onclick="showScreen('lab-screen')" class="glass-panel p-5 rounded-3xl border-4 border-purple-500 shadow-lg card-hover cursor-pointer flex items-center gap-4 bg-gradient-to-br from-purple-50 to-white">
+                    <div class="w-14 h-14 rounded-2xl bg-purple-500 text-white flex items-center justify-center text-2xl shadow-md">
+                        🧪
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-lg text-slate-800">4. Lab Eksperimen</h3>
+                        <p class="text-xs text-slate-500">Simulasi interaktif langsung</p>
+                    </div>
+                </div>
+
+                <!-- Menu 5: Game Interaktif -->
+                <div onclick="showScreen('game-menu-screen')" class="glass-panel p-5 rounded-3xl border-4 border-pink-500 shadow-lg card-hover cursor-pointer flex items-center gap-4 bg-gradient-to-br from-pink-50 to-white">
+                    <div class="w-14 h-14 rounded-2xl bg-pink-500 text-white flex items-center justify-center text-2xl shadow-md">
+                        🎮
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-lg text-slate-800">5. Game Interaktif</h3>
+                        <p class="text-xs text-slate-500">3 Mini-game (5 Soal/Tantangan)</p>
+                    </div>
+                </div>
+
+                <!-- Menu 6: Latihan Soal -->
+                <div onclick="showScreen('practice-screen')" class="glass-panel p-5 rounded-3xl border-4 border-amber-500 shadow-lg card-hover cursor-pointer flex items-center gap-4 bg-gradient-to-br from-amber-50 to-white">
+                    <div class="w-14 h-14 rounded-2xl bg-amber-500 text-white flex items-center justify-center text-2xl shadow-md">
+                        ✏️
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-lg text-slate-800">6. Latihan Formatif</h3>
+                        <p class="text-xs text-slate-500">Uji pemahaman bertahap</p>
+                    </div>
+                </div>
+
+                <!-- Menu 7: Ujian Akhir -->
+                <div onclick="showScreen('exam-screen')" class="glass-panel p-5 rounded-3xl border-4 border-red-500 shadow-lg card-hover cursor-pointer flex items-center gap-4 bg-gradient-to-br from-red-50 to-white">
+                    <div class="w-14 h-14 rounded-2xl bg-red-500 text-white flex items-center justify-center text-2xl shadow-md">
+                        🏆
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-lg text-slate-800">7. Asesmen Sumatif</h3>
+                        <p class="text-xs text-slate-500">Ujian & Sertifikat Digital</p>
+                    </div>
+                </div>
+
+                <!-- Menu 8: Glosarium -->
+                <div onclick="showScreen('glossary-screen')" class="glass-panel p-5 rounded-3xl border-4 border-indigo-400 shadow-lg card-hover cursor-pointer flex items-center gap-4 bg-gradient-to-br from-indigo-50 to-white">
+                    <div class="w-14 h-14 rounded-2xl bg-indigo-400 text-white flex items-center justify-center text-2xl shadow-md">
+                        📖
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-lg text-slate-800">8. Glosarium</h3>
+                        <p class="text-xs text-slate-500">Kamus matematika sederhana</p>
+                    </div>
+                </div>
+
+                <!-- Menu 9: Profil Pengembang -->
+                <div onclick="showScreen('dev-screen')" class="glass-panel p-5 rounded-3xl border-4 border-slate-400 shadow-lg card-hover cursor-pointer flex items-center gap-4 bg-gradient-to-br from-slate-100 to-white">
+                    <div class="w-14 h-14 rounded-2xl bg-slate-600 text-white flex items-center justify-center text-2xl shadow-md">
+                        👨‍💻
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-lg text-slate-800">9. Profil Pengembang</h3>
+                        <p class="text-xs text-slate-500">Informasi pengembang media</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 3. HALAMAN PETUNJUK PENGGUNAAN -->
+        <section id="guide-screen" class="hidden w-full max-w-4xl glass-panel p-6 sm:p-8 rounded-3xl border-4 border-cyan-400 shadow-2xl space-y-6">
+            <div class="flex items-center gap-3 border-b-2 border-cyan-200 pb-4">
+                <div class="w-12 h-12 bg-cyan-400 text-white rounded-2xl flex items-center justify-center text-2xl font-bold shadow">📖</div>
+                <div>
+                    <h2 class="text-2xl font-extrabold text-slate-800">Petunjuk Penggunaan MPI</h2>
+                    <p class="text-xs text-slate-500">Panduan mudah menjelajahi dunia rasio</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                <div class="bg-white p-4 rounded-2xl border-2 border-cyan-100 shadow-sm flex items-start gap-3">
+                    <span class="bg-cyan-100 text-cyan-700 rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">1</span>
+                    <p class="text-slate-700"><strong>Peta Navigasi:</strong> Pilih menu yang ingin dipelajari dari halaman Peta Utama.</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border-2 border-cyan-100 shadow-sm flex items-start gap-3">
+                    <span class="bg-cyan-100 text-cyan-700 rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">2</span>
+                    <p class="text-slate-700"><strong>Eksplorasi Konkret:</strong> Pada menu Materi & Lab, ubah slider/tombol untuk melihat perubahan visual rasio.</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border-2 border-cyan-100 shadow-sm flex items-start gap-3">
+                    <span class="bg-cyan-100 text-cyan-700 rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">3</span>
+                    <p class="text-slate-700"><strong>Game & Latihan:</strong> Kumpulkan poin XP untuk menaikkan Badge Level Penjelajahmu.</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border-2 border-cyan-100 shadow-sm flex items-start gap-3">
+                    <span class="bg-cyan-100 text-cyan-700 rounded-full w-8 h-8 flex items-center justify-center font-bold flex-shrink-0">4</span>
+                    <p class="text-slate-700"><strong>Papan Interaktif (PID):</strong> Gunakan sentuhan jari pada layar sentuh atau klik mouse untuk bermain.</p>
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-4">
+                <button onclick="showScreen('material-screen')" class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold px-6 py-3 rounded-2xl shadow-lg border-b-4 border-cyan-700 transition flex items-center gap-2">
+                    <span>Lanjut ke Materi</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- 4. HALAMAN TUJUAN PEMBELAJARAN -->
+        <section id="objectives-screen" class="hidden w-full max-w-4xl glass-panel p-6 sm:p-8 rounded-3xl border-4 border-emerald-400 shadow-2xl space-y-6">
+            <div class="flex items-center gap-3 border-b-2 border-emerald-200 pb-4">
+                <div class="w-12 h-12 bg-emerald-400 text-white rounded-2xl flex items-center justify-center text-2xl font-bold shadow">🎯</div>
+                <div>
+                    <h2 class="text-2xl font-extrabold text-slate-800">Tujuan Pembelajaran (Capaian Fase C)</h2>
+                    <p class="text-xs text-slate-500">Kurikulum Merdeka - Matematika Kelas VI</p>
+                </div>
+            </div>
+
+            <div class="bg-emerald-50 border-2 border-emerald-200 p-4 rounded-2xl text-emerald-900 font-medium text-sm">
+                📌 <strong>Capaian Pembelajaran Utama:</strong> Murid dapat memahami konsep rasio dan menggunakan bahasa rasio untuk menjelaskan hubungan perbandingan antara dua besaran dalam kehidupan sehari-hari.
+            </div>
+
+            <h3 class="font-bold text-slate-800 text-base">Indikator Ketercapaian Pembelajaran:</h3>
+            <ul class="space-y-2 text-sm text-slate-700">
+                <li class="flex items-center gap-2 bg-white p-3 rounded-xl border border-slate-200"><i class="fas fa-check-circle text-emerald-500"></i> Menjelaskan pengertian rasio sebagai pembanding dua besaran.</li>
+                <li class="flex items-center gap-2 bg-white p-3 rounded-xl border border-slate-200"><i class="fas fa-check-circle text-emerald-500"></i> Menentukan banyaknya masing-masing kelompok benda konkret.</li>
+                <li class="flex items-center gap-2 bg-white p-3 rounded-xl border border-slate-200"><i class="fas fa-check-circle text-emerald-500"></i> Menuliskan perbandingan menggunakan notasi rasio (a : b).</li>
+                <li class="flex items-center gap-2 bg-white p-3 rounded-xl border border-slate-200"><i class="fas fa-check-circle text-emerald-500"></i> Membaca dan mengucapkan rasio dengan bahasa Indonesia yang benar.</li>
+                <li class="flex items-center gap-2 bg-white p-3 rounded-xl border border-slate-200"><i class="fas fa-check-circle text-emerald-500"></i> Menyelesaikan permasalahan kehidupan sehari-hari berbasis perbandingan sederhana.</li>
+            </ul>
+
+            <div class="flex justify-between pt-4">
+                <button onclick="showScreen('guide-screen')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-5 py-2.5 rounded-2xl transition">Kembali</button>
+                <button onclick="showScreen('material-screen')" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-6 py-3 rounded-2xl shadow-lg border-b-4 border-emerald-700 transition flex items-center gap-2">
+                    <span>Mulai Belajar Materi</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- 5. HALAMAN MATERI PEMBELAJARAN (INTERAKTIF MODULAR) -->
+        <section id="material-screen" class="hidden w-full max-w-4xl glass-panel p-6 sm:p-8 rounded-3xl border-4 border-blue-500 shadow-2xl space-y-6">
+            
+            <!-- Sub-Menu Material Tab Navigation -->
+            <div class="flex flex-wrap gap-2 border-b-2 border-slate-200 pb-3">
+                <button onclick="switchMaterialTab(1)" id="mat-tab-1" class="mat-tab-btn bg-blue-500 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-bold shadow transition">1. Apa itu Rasio?</button>
+                <button onclick="switchMaterialTab(2)" id="mat-tab-2" class="mat-tab-btn bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition">2. Membandingkan Benda</button>
+                <button onclick="switchMaterialTab(3)" id="mat-tab-3" class="mat-tab-btn bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition">3. Bahasa & Notasi</button>
+                <button onclick="switchMaterialTab(4)" id="mat-tab-4" class="mat-tab-btn bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition">4. Dalam Sehari-hari</button>
+            </div>
+
+            <!-- Tab Content Container -->
+            <div id="material-content" class="min-h-[350px]">
+                <!-- Dynamic loaded content here -->
+            </div>
+
+            <!-- Material Footer Controls -->
+            <div class="flex justify-between items-center pt-4 border-t-2 border-slate-200">
+                <button id="mat-prev-btn" onclick="prevMaterialTab()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-5 py-2.5 rounded-2xl transition">
+                    <i class="fas fa-arrow-left"></i> Sebelumnya
+                </button>
+                <span id="mat-progress" class="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">Bagian 1 dari 4</span>
+                <button id="mat-next-btn" onclick="nextMaterialTab()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold px-6 py-2.5 rounded-2xl shadow-lg border-b-4 border-blue-700 transition flex items-center gap-2">
+                    <span>Berikutnya</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- 6. HALAMAN EKSPERIMEN RASIO (FITUR UTAMA SIMULASI) -->
+        <section id="lab-screen" class="hidden w-full max-w-5xl glass-panel p-6 sm:p-8 rounded-3xl border-4 border-purple-500 shadow-2xl space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b-2 border-purple-200 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-purple-500 text-white rounded-2xl flex items-center justify-center text-2xl font-bold shadow">🧪</div>
+                    <div>
+                        <h2 class="text-2xl font-extrabold text-slate-800">Laboratorium Rasio</h2>
+                        <p class="text-xs text-slate-500">Ubah jumlah benda dan temukan pola perbandingannya secara otomatis!</p>
+                    </div>
+                </div>
+
+                <!-- Lab Mode Switcher -->
+                <div class="flex gap-2">
+                    <button onclick="switchLabMode('mode1')" id="lab-btn-mode1" class="lab-mode-btn bg-purple-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow">Eksperimen Ubah Benda</button>
+                    <button onclick="switchLabMode('mode2')" id="lab-btn-mode2" class="lab-mode-btn bg-purple-100 text-purple-700 px-3 py-1.5 rounded-xl text-xs font-bold">Tebak & Jelaskan</button>
+                </div>
+            </div>
+
+            <!-- LAB MODE 1: EKSPLORASI INTERAKTIF SIMULASI -->
+            <div id="lab-mode-1" class="space-y-6">
+                <!-- Preset Theme Benda -->
+                <div class="flex items-center gap-2 overflow-x-auto pb-2">
+                    <span class="text-xs font-bold text-slate-600 flex-shrink-0">Pilih Tema Benda:</span>
+                    <button onclick="setLabPreset('🍎', '🍏', 'Apel Merah', 'Apel Hijau')" class="bg-white hover:bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-bold shadow-sm flex-shrink-0">🍎 vs 🍏 Apel</button>
+                    <button onclick="setLabPreset('✏️', '🧹', 'Pensil', 'Penghapus')" class="bg-white hover:bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-bold shadow-sm flex-shrink-0">✏️ vs 🧹 Kelas</button>
+                    <button onclick="setLabPreset('⚽', '🏀', 'Bola Sepak', 'Bola Basket')" class="bg-white hover:bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-bold shadow-sm flex-shrink-0">⚽ vs 🏀 Olahraga</button>
+                </div>
+
+                <!-- Visual Display Area -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 p-6 rounded-3xl border-2 border-purple-200">
+                    <!-- Kelompok A -->
+                    <div class="bg-white p-5 rounded-2xl shadow border-2 border-red-300 flex flex-col justify-between space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span id="lab-label-a" class="font-extrabold text-red-600">Kelompok A (Apel Merah)</span>
+                            <span id="lab-count-a" class="bg-red-100 text-red-700 font-extrabold text-lg px-3 py-1 rounded-xl">3</span>
+                        </div>
+                        <div id="lab-container-a" class="flex flex-wrap gap-3 min-h-[100px] items-center justify-center bg-red-50 p-4 rounded-xl border border-dashed border-red-200">
+                            <!-- Dynamic Emoji Items -->
+                        </div>
+                        <div class="flex items-center justify-center gap-4">
+                            <button onclick="updateLabCount('A', -1)" class="w-12 h-12 bg-red-500 hover:bg-red-600 text-white rounded-2xl font-extrabold text-xl shadow border-b-4 border-red-700 active:scale-95 transition">-</button>
+                            <input type="range" id="lab-range-a" min="1" max="10" value="3" oninput="setLabCount('A', this.value)" class="w-full accent-red-500">
+                            <button onclick="updateLabCount('A', 1)" class="w-12 h-12 bg-red-500 hover:bg-red-600 text-white rounded-2xl font-extrabold text-xl shadow border-b-4 border-red-700 active:scale-95 transition">+</button>
+                        </div>
+                    </div>
+
+                    <!-- Kelompok B -->
+                    <div class="bg-white p-5 rounded-2xl shadow border-2 border-emerald-300 flex flex-col justify-between space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span id="lab-label-b" class="font-extrabold text-emerald-600">Kelompok B (Apel Hijau)</span>
+                            <span id="lab-count-b" class="bg-emerald-100 text-emerald-700 font-extrabold text-lg px-3 py-1 rounded-xl">2</span>
+                        </div>
+                        <div id="lab-container-b" class="flex flex-wrap gap-3 min-h-[100px] items-center justify-center bg-emerald-50 p-4 rounded-xl border border-dashed border-emerald-200">
+                            <!-- Dynamic Emoji Items -->
+                        </div>
+                        <div class="flex items-center justify-center gap-4">
+                            <button onclick="updateLabCount('B', -1)" class="w-12 h-12 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-extrabold text-xl shadow border-b-4 border-emerald-700 active:scale-95 transition">-</button>
+                            <input type="range" id="lab-range-b" min="1" max="10" value="2" oninput="setLabCount('B', this.value)" class="w-full accent-emerald-500">
+                            <button onclick="updateLabCount('B', 1)" class="w-12 h-12 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-extrabold text-xl shadow border-b-4 border-emerald-700 active:scale-95 transition">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Ratio Output Panel -->
+                <div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-6 rounded-3xl shadow-xl text-center space-y-3">
+                    <h3 class="text-xs uppercase tracking-widest text-purple-200 font-bold">Hasil Perbandingan Otomatis</h3>
+                    <div class="text-4xl sm:text-5xl font-black tracking-wide bg-white/10 py-3 rounded-2xl border border-white/20">
+                        <span id="lab-ratio-text">3 : 2</span>
+                    </div>
+                    <p id="lab-sentence-text" class="text-sm sm:text-base font-semibold text-purple-100">
+                        Rasio Apel Merah terhadap Apel Hijau adalah 3 dibanding 2.
+                    </p>
+                    <button onclick="playAudioText()" class="bg-yellow-400 hover:bg-yellow-300 text-purple-900 font-extrabold px-4 py-2 rounded-xl text-xs shadow inline-flex items-center gap-2 transition">
+                        <i class="fas fa-volume-up"></i> Dengarkan Bahasa Rasio
+                    </button>
+                </div>
+            </div>
+
+            <!-- LAB MODE 2: TEBAK & JELASKAN DENGAN BAHASAMU -->
+            <div id="lab-mode-2" class="hidden space-y-6">
+                <div class="bg-white p-6 rounded-3xl border-2 border-purple-200 space-y-4">
+                    <h3 class="font-extrabold text-slate-800 text-lg">Eksperimen 4: Jelaskan Perbandingan dengan Bahasamu Sendiri</h3>
+                    <p class="text-xs text-slate-600">Amati gambar benda di bawah ini, lalu tuliskan kalimat penjelasan rasio dengan bahasa sederhanamu!</p>
+
+                    <!-- Challenge Image Display -->
+                    <div class="bg-purple-50 p-6 rounded-2xl border border-purple-200 flex justify-center items-center gap-6 text-4xl">
+                        <div class="text-center">
+                            <div>🚗 🚗 🚗 🚗 🚗</div>
+                            <span class="text-xs font-bold text-slate-600">5 Mobil Merah</span>
+                        </div>
+                        <div class="text-2xl font-bold text-slate-400">:</div>
+                        <div class="text-center">
+                            <div>🚕 🚕 🚕</div>
+                            <span class="text-xs font-bold text-slate-600">3 Taksi Kuning</span>
+                        </div>
+                    </div>
+
+                    <!-- Student Input Area -->
+                    <div class="space-y-3">
+                        <label class="block text-xs font-bold text-slate-700">Tuliskan Kalimat Perbandinganmu:</label>
+                        <textarea id="lab-explain-input" rows="3" placeholder="Contoh: Rasio banyak mobil merah terhadap taksi kuning adalah 5 dibanding 3..." class="w-full p-4 rounded-2xl border-2 border-slate-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none text-sm font-semibold text-slate-800"></textarea>
+                        <button onclick="checkLabExplanation()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-3 rounded-2xl shadow-lg transition">Periksa Penjelasanku</button>
+                    </div>
+
+                    <!-- Feedback Box -->
+                    <div id="lab-explain-feedback" class="hidden p-4 rounded-2xl text-sm font-bold"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. HALAMAN GAME INTERAKTIF (MENU MINI GAMES) -->
+        <section id="game-menu-screen" class="hidden w-full max-w-4xl glass-panel p-6 sm:p-8 rounded-3xl border-4 border-pink-500 shadow-2xl space-y-6">
+            <div class="flex items-center gap-3 border-b-2 border-pink-200 pb-4">
+                <div class="w-12 h-12 bg-pink-500 text-white rounded-2xl flex items-center justify-center text-2xl font-bold shadow">🎮</div>
+                <div>
+                    <h2 class="text-2xl font-extrabold text-slate-800">Arena Game Matematika</h2>
+                    <p class="text-xs text-slate-500">Pilih tantangan game (masing-masing 5 soal) untuk mengumpulkan Poin XP!</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <!-- Game 1 -->
+                <div class="bg-white p-5 rounded-3xl border-3 border-pink-300 shadow-md flex flex-col justify-between space-y-4 text-center card-hover">
+                    <div class="text-5xl py-2">🎯</div>
+                    <div>
+                        <h3 class="font-extrabold text-slate-800 text-base">1. Ratio Hunter</h3>
+                        <p class="text-xs text-slate-500 mt-1">Pemburu Rasio Cepat (5 Soal, 15 Detik/Soal)</p>
+                    </div>
+                    <button onclick="startMiniGame(1)" class="w-full py-2.5 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-xl shadow border-b-4 border-pink-700 transition">Main Sekarang</button>
+                </div>
+
+                <!-- Game 2 -->
+                <div class="bg-white p-5 rounded-3xl border-3 border-purple-300 shadow-md flex flex-col justify-between space-y-4 text-center card-hover">
+                    <div class="text-5xl py-2">🃏</div>
+                    <div>
+                        <h3 class="font-extrabold text-slate-800 text-base">2. Memory Match</h3>
+                        <p class="text-xs text-slate-500 mt-1">Ingatan Kartu Rasio (5 Pasang Kartu)</p>
+                    </div>
+                    <button onclick="startMiniGame(2)" class="w-full py-2.5 bg-purple-500 hover:bg-purple-600 text-white font-bold rounded-xl shadow border-b-4 border-purple-700 transition">Main Sekarang</button>
+                </div>
+
+                <!-- Game 3 -->
+                <div class="bg-white p-5 rounded-3xl border-3 border-amber-300 shadow-md flex flex-col justify-between space-y-4 text-center card-hover">
+                    <div class="text-5xl py-2">🧩</div>
+                    <div>
+                        <h3 class="font-extrabold text-slate-800 text-base">3. Puzzle Adventure</h3>
+                        <p class="text-xs text-slate-500 mt-1">Drag & Drop Susun Notasi Rasio (5 Tantangan)</p>
+                    </div>
+                    <button onclick="startMiniGame(3)" class="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl shadow border-b-4 border-amber-700 transition">Main Sekarang</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONTAINER MINI-GAME ACTIVE CANVAS -->
+        <section id="game-play-screen" class="hidden w-full max-w-4xl glass-panel p-6 sm:p-8 rounded-3xl border-4 border-pink-500 shadow-2xl space-y-6">
+            <div class="flex justify-between items-center border-b-2 border-slate-200 pb-3">
+                <h3 id="active-game-title" class="font-extrabold text-slate-800 text-lg">Mini Game active</h3>
+                <div class="flex items-center gap-4">
+                    <span id="game-timer-display" class="bg-red-100 text-red-600 font-extrabold px-3 py-1 rounded-xl text-sm hidden">⏳ 15s</span>
+                    <span id="game-score-display" class="bg-amber-100 text-amber-800 font-extrabold px-3 py-1 rounded-xl text-sm">Skor: 0</span>
+                    <button onclick="showScreen('game-menu-screen')" class="bg-slate-200 hover:bg-slate-300 px-3 py-1 rounded-xl text-xs font-bold text-slate-700">Keluar Game</button>
+                </div>
+            </div>
+
+            <!-- Game Viewport Area -->
+            <div id="game-viewport" class="min-h-[350px] bg-white rounded-3xl p-6 border-2 border-slate-200 flex flex-col justify-center items-center">
+                <!-- Dynamic Game Content Rendered Here -->
+            </div>
+        </section>
+
+        <!-- 8. HALAMAN LATIHAN SOAL FORMATIF -->
+        <section id="practice-screen" class="hidden w-full max-w-4xl glass-panel p-6 sm:p-8 rounded-3xl border-4 border-amber-500 shadow-2xl space-y-6">
+            <!-- Header Bar -->
+            <div class="flex justify-between items-center border-b-2 border-amber-200 pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">✏️</span>
+                    <h2 class="text-xl font-extrabold text-slate-800">Latihan Formatif Rasio</h2>
+                </div>
+                <!-- Lives Indicator -->
+                <div class="flex items-center gap-1 bg-red-50 border border-red-200 px-3 py-1 rounded-full">
+                    <span class="text-xs font-bold text-red-600 mr-1">Kesempatan:</span>
+                    <span id="practice-lives">❤️❤️❤️</span>
+                </div>
+            </div>
+
+            <!-- Question Card Viewport -->
+            <div id="practice-viewport" class="space-y-6">
+                <!-- Question content dynamically rendered -->
+            </div>
+
+            <!-- Footer Next Controls -->
+            <div class="flex justify-between items-center pt-4 border-t-2 border-slate-200">
+                <span id="practice-progress" class="text-xs font-bold text-slate-500">Soal 1 dari 10</span>
+                <button id="practice-next-btn" onclick="nextPracticeQuestion()" class="hidden bg-amber-500 hover:bg-amber-600 text-white font-bold px-6 py-2.5 rounded-2xl shadow-lg border-b-4 border-amber-700 transition">Soal Berikutnya <i class="fas fa-arrow-right"></i></button>
+            </div>
+        </section>
+
+        <!-- 9. HALAMAN UJIAN AKHIR (ASESMEN SUMATIF) -->
+        <section id="exam-screen" class="hidden w-full max-w-4xl glass-panel p-6 sm:p-8 rounded-3xl border-4 border-red-500 shadow-2xl space-y-6">
+            <!-- Start Exam Splash Screen -->
+            <div id="exam-start-panel" class="text-center space-y-5 py-6">
+                <div class="w-20 h-20 bg-red-100 text-red-500 rounded-full flex items-center justify-center text-4xl mx-auto shadow-inner">
+                    🏆
+                </div>
+                <h2 class="text-3xl font-extrabold text-slate-800">Asesmen Sumatif Rasio</h2>
+                <p class="text-slate-600 max-w-lg mx-auto text-sm font-semibold">
+                    Ujian akhir terdiri atas 10 soal pilihan ganda acak (LOTS, MOTS, HOTS) dengan durasi waktu 20 menit. Bersiaplah menunjukkan kemampuan pemahaman rasiomu!
+                </p>
+                <button onclick="startOfficialExam()" class="bg-red-500 hover:bg-red-600 text-white font-extrabold px-8 py-4 rounded-2xl shadow-xl border-b-4 border-red-800 transition transform active:scale-95 text-lg">
+                    MULAI UJIAN SEKARANG
+                </button>
+            </div>
+
+            <!-- Active Exam Panel -->
+            <div id="exam-active-panel" class="hidden space-y-6">
+                <div class="flex justify-between items-center bg-red-50 p-4 rounded-2xl border border-red-200">
+                    <span id="exam-timer" class="font-black text-red-600 text-base">⏱️ Waktu Sisa: 20:00</span>
+                    <span id="exam-question-num" class="font-bold text-slate-700 text-sm">Soal 1 / 10</span>
+                </div>
+
+                <div id="exam-question-card" class="bg-white p-6 rounded-3xl border-2 border-slate-200 space-y-4">
+                    <!-- Dynamic Question Render -->
+                </div>
+
+                <div class="flex justify-between items-center pt-2">
+                    <button id="exam-prev-btn" onclick="prevExamQuestion()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-5 py-2.5 rounded-2xl transition">Sebelumnya</button>
+                    <button id="exam-next-btn" onclick="nextExamQuestion()" class="bg-red-500 hover:bg-red-600 text-white font-bold px-6 py-2.5 rounded-2xl shadow-lg transition">Berikutnya</button>
+                    <button id="exam-submit-btn" onclick="confirmSubmitExam()" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold px-6 py-2.5 rounded-2xl shadow-lg border-b-4 border-emerald-800 transition">Selesaikan & Kirim</button>
+                </div>
+            </div>
+
+            <!-- Exam Result & Digital Certificate Panel -->
+            <div id="exam-result-panel" class="hidden space-y-6">
+                <div class="bg-gradient-to-r from-amber-50 to-orange-50 p-6 rounded-3xl border-4 border-amber-400 text-center space-y-4 shadow-xl">
+                    <h2 class="text-3xl font-black text-amber-800">HASIL ASESMEN SUMATIF</h2>
+                    
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div class="bg-white p-3 rounded-2xl border border-amber-200 shadow-sm">
+                            <span class="text-xs text-slate-500 font-bold block">NILAI AKHIR</span>
+                            <span id="res-score" class="text-3xl font-black text-blue-600">100</span>
+                        </div>
+                        <div class="bg-white p-3 rounded-2xl border border-amber-200 shadow-sm">
+                            <span class="text-xs text-slate-500 font-bold block">BENAR / SALAH</span>
+                            <span id="res-correct" class="text-lg font-bold text-emerald-600">10 / 0</span>
+                        </div>
+                        <div class="bg-white p-3 rounded-2xl border border-amber-200 shadow-sm">
+                            <span class="text-xs text-slate-500 font-bold block">WAKTU</span>
+                            <span id="res-time" class="text-lg font-bold text-slate-700">05:20</span>
+                        </div>
+                        <div class="bg-white p-3 rounded-2xl border border-amber-200 shadow-sm">
+                            <span class="text-xs text-slate-500 font-bold block">PREDIKAT</span>
+                            <span id="res-predicate" class="text-sm font-extrabold text-purple-700">Paham Utuh</span>
+                        </div>
+                    </div>
+
+                    <!-- Digital Certificate Canvas / Box -->
+                    <div class="bg-white p-6 rounded-2xl border-4 border-yellow-400 shadow-inner text-center space-y-3 relative overflow-hidden">
+                        <div class="absolute top-2 left-2 text-2xl">🏆</div>
+                        <div class="absolute top-2 right-2 text-2xl">🏆</div>
+                        <span class="text-xs font-black tracking-widest text-slate-400 uppercase">SERTIFIKAT KETRAMPILAN MATEMATIKA FASE C</span>
+                        <h3 class="text-xl font-extrabold text-slate-800">Diberikan Kepada:</h3>
+                        <p id="cert-name" class="text-2xl font-black text-blue-600 underline">Nama Siswa</p>
+                        <p class="text-xs text-slate-600 max-w-md mx-auto">
+                            Telah berhasil menyelesaikan Petualangan Belajar Rasio Kurikulum Merdeka Matematika Kelas VI SD dengan predikat luar biasa!
+                        </p>
+                    </div>
+
+                    <div class="flex flex-wrap justify-center gap-3 pt-3">
+                        <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 py-2.5 rounded-2xl shadow transition"><i class="fas fa-print"></i> Cetak Hasil</button>
+                        <button onclick="showScreen('dashboard-screen')" class="bg-slate-700 hover:bg-slate-800 text-white font-bold px-5 py-2.5 rounded-2xl shadow transition">Kembali ke Peta</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 10. HALAMAN GLOSARIUM -->
+        <section id="glossary-screen" class="hidden w-full max-w-4xl glass-panel p-6 sm:p-8 rounded-3xl border-4 border-indigo-400 shadow-2xl space-y-6">
+            <div class="flex items-center gap-3 border-b-2 border-indigo-200 pb-4">
+                <div class="w-12 h-12 bg-indigo-400 text-white rounded-2xl flex items-center justify-center text-2xl font-bold shadow">📖</div>
+                <div>
+                    <h2 class="text-2xl font-extrabold text-slate-800">Glosarium Matematika</h2>
+                    <p class="text-xs text-slate-500">Kamus istilah sederhana perbandingan rasio</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                <div class="bg-white p-4 rounded-2xl border border-indigo-100 shadow-sm space-y-1">
+                    <h4 class="font-extrabold text-indigo-700 text-base">Rasio (Ratio)</h4>
+                    <p class="text-slate-600 text-xs">Cara matematik untuk membandingkan dua besaran atau dua kelompok benda yang sejenis.</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-indigo-100 shadow-sm space-y-1">
+                    <h4 class="font-extrabold text-indigo-700 text-base">Notasi Rasio (a : b)</h4>
+                    <p class="text-slate-600 text-xs">Simbol titik dua (:) yang digunakan untuk memisahkan jumlah benda pertama dan kedua.</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-indigo-100 shadow-sm space-y-1">
+                    <h4 class="font-extrabold text-indigo-700 text-base">Besaran</h4>
+                    <p class="text-slate-600 text-xs">Segala sesuatu yang dapat dihitung, diukur, dan dinyatakan dalam bentuk angka.</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-indigo-100 shadow-sm space-y-1">
+                    <h4 class="font-extrabold text-indigo-700 text-base">Benda Konkret</h4>
+                    <p class="text-slate-600 text-xs">Objek nyata atau gambar nyata yang dapat dilihat dan dihitung secara fisik oleh murid.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 11. HALAMAN PROFIL PENGEMBANG -->
+        <section id="dev-screen" class="hidden w-full max-w-3xl glass-panel p-6 sm:p-8 rounded-3xl border-4 border-slate-400 shadow-2xl space-y-6">
+            <div class="flex items-center gap-3 border-b-2 border-slate-200 pb-4">
+                <div class="w-12 h-12 bg-slate-600 text-white rounded-2xl flex items-center justify-center text-2xl font-bold shadow">👨‍💻</div>
+                <div>
+                    <h2 class="text-2xl font-extrabold text-slate-800">Profil Pengembang MPI</h2>
+                    <p class="text-xs text-slate-500">Pengembangan Media Pembelajaran Matematika SD</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-3xl border-2 border-slate-200 space-y-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-3xl font-bold shadow">
+                        🎓
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-extrabold text-slate-800">Tim Instructional Designer & Developer</h3>
+                        <p class="text-xs text-blue-600 font-bold">Ahli Kurikulum Merdeka Matematika SD Fase C</p>
+                    </div>
+                </div>
+
+                <div class="space-y-2 text-xs sm:text-sm text-slate-600 border-t border-slate-100 pt-3">
+                    <p><strong>Sasaran:</strong> Peserta Didik SD Kelas VI (Usia 11–12 Tahun)</p>
+                    <p><strong>Pendekatan Pedagogis:</strong> Deep Learning (Memahami, Mengaplikasi, Merefleksi) & Gamification</p>
+                    <p><strong>Teknologi:</strong> HTML5, CSS3 Tailwind, Native JavaScript ES6, Web Audio API (100% Offline Compatible)</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 py-3 text-center text-xs text-slate-500 font-medium">
+        Media Pembelajaran Interaktif (MPI) Matematika SD Kelas VI - Kurikulum Merdeka Fase C © 2026
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC ARCHITECTURE -->
+    <script>
+        /* ==========================================================================
+           STATE MANAGEMENT & LOCAL STORAGE
+           ========================================================================== */
+        const APP_STORAGE_KEY = 'MPI_RASIO_SD_V1';
+        
+        let appState = {
+            user: {
+                name: '',
+                class: '',
+                avatar: '👦',
+                stars: 0,
+                badge: 'Penjelajah Pemula'
+            },
+            audioMuted: false,
+            currentMaterialTab: 1,
+            lab: {
+                itemA: '🍎',
+                itemB: '🍏',
+                nameA: 'Apel Merah',
+                nameB: 'Apel Hijau',
+                countA: 3,
+                countB: 2
+            },
+            game: {
+                score: 0,
+                timer: null,
+                timeLeft: 15
+            },
+            practice: {
+                currentIdx: 0,
+                lives: 3,
+                score: 0
+            },
+            exam: {
+                questions: [],
+                answers: [],
+                currentIdx: 0,
+                timer: null,
+                timeLeft: 1200 // 20 mins
+            }
+        };
+
+        // Sound Synthesis (Web Audio API - No external MP3 files needed!)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(type) {
+            if (appState.audioMuted) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'correct') {
+                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                    osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.25);
+                } else if (type === 'wrong') {
+                    osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+                    osc.frequency.setValueAtTime(180, audioCtx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.25);
+                } else if (type === 'click') {
+                    osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.05);
+                }
+            } catch (e) {
+                console.log('Audio playback error', e);
+            }
+        }
+
+        function toggleAudio() {
+            appState.audioMuted = !appState.audioMuted;
+            const btn = document.getElementById('audio-toggle-btn');
+            btn.innerHTML = appState.audioMuted 
+                ? '<i class="fas fa-volume-mute text-lg text-red-500"></i>' 
+                : '<i class="fas fa-volume-up text-lg"></i>';
+        }
+
+        /* Load / Save Progress */
+        function loadStorageData() {
+            const saved = localStorage.getItem(APP_STORAGE_KEY);
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    appState.user = { ...appState.user, ...data.user };
+                    updateHeaderUI();
+                } catch (e) {
+                    console.error('Storage parse error', e);
+                }
+            }
+        }
+
+        function saveStorageData() {
+            localStorage.setItem(APP_STORAGE_KEY, JSON.stringify({
+                user: appState.user
+            }));
+        }
+
+        function addXP(amount) {
+            appState.user.stars += amount;
+            // Update Badge Logic
+            if (appState.user.stars >= 100) appState.user.badge = 'Master Rasio 👑';
+            else if (appState.user.stars >= 50) appState.user.badge = 'Pemburu Rasio 🎯';
+            else if (appState.user.stars >= 20) appState.user.badge = 'Ahli Pembanding 🔍';
+            
+            saveStorageData();
+            updateHeaderUI();
+        }
+
+        function resetProgress() {
+            if (confirm('Apakah kamu yakin ingin mereset seluruh progres dan skor belajar?')) {
+                localStorage.removeItem(APP_STORAGE_KEY);
+                location.reload();
+            }
+        }
+
+        /* ==========================================================================
+           NAVIGATION & UI ROUTER
+           ========================================================================== */
+        function showScreen(screenId) {
+            playSound('click');
+            const screens = ['login-screen', 'dashboard-screen', 'guide-screen', 'objectives-screen', 
+                             'material-screen', 'lab-screen', 'game-menu-screen', 'game-play-screen',
+                             'practice-screen', 'exam-screen', 'glossary-screen', 'dev-screen'];
+            
+            screens.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+
+            const activeEl = document.getElementById(screenId);
+            if (activeEl) activeEl.classList.remove('hidden');
+
+            // Toggle Header visibility
+            const header = document.getElementById('global-header');
+            if (screenId === 'login-screen') {
+                header.classList.add('hidden');
+            } else {
+                header.classList.remove('hidden');
+            }
+
+            // Screen Specific Init logic
+            if (screenId === 'material-screen') renderMaterialTab(appState.currentMaterialTab);
+            if (screenId === 'lab-screen') renderLabUI();
+            if (screenId === 'practice-screen') initPracticeModule();
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const name = document.getElementById('input-name').value.trim();
+            const userClass = document.getElementById('input-class').value.trim();
+            const avatar = document.querySelector('input[name="avatar"]:checked').value;
+
+            if (!name || !userClass) return;
+
+            appState.user.name = name;
+            appState.user.class = userClass;
+            appState.user.avatar = avatar;
+
+            saveStorageData();
+            updateHeaderUI();
+            showScreen('dashboard-screen');
+        }
+
+        function updateHeaderUI() {
+            document.getElementById('header-user-name').textContent = appState.user.name || 'Penjelajah';
+            document.getElementById('header-user-class').textContent = appState.user.class || 'Kelas 6 SD';
+            document.getElementById('header-avatar').textContent = appState.user.avatar || '👦';
+            document.getElementById('header-stars').textContent = `${appState.user.stars} XP`;
+            document.getElementById('header-badge').textContent = appState.user.badge;
+
+            document.getElementById('dash-user-name').textContent = appState.user.name || 'Penjelajah';
+            document.getElementById('dash-avatar').textContent = appState.user.avatar || '👦';
+            document.getElementById('dash-badge-name').textContent = appState.user.badge;
+        }
+
+        /* ==========================================================================
+           5. MATERI PEMBELAJARAN (INTERAKTIF & KONTEKSTUAL)
+           ========================================================================== */
+        const materialData = [
+            {
+                id: 1,
+                title: "Apa Itu Rasio?",
+                content: `
+                    <div class="space-y-4">
+                        <div class="bg-blue-50 p-4 rounded-2xl border border-blue-200 text-slate-700 text-sm">
+                            <p class="font-bold text-blue-800 text-base mb-1">💡 Pengertian Dasar:</p>
+                            <strong>Rasio</strong> adalah cara kita membandingkan dua besaran atau dua kelompok benda. 
+                            Rasio memberitahu kita berapa banyak satu benda dibandingkan benda lainnya.
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl border-2 border-slate-200 text-center space-y-3 shadow-sm">
+                            <h4 class="font-extrabold text-slate-800">Contoh Konkret di Meja Belajar:</h4>
+                            <div class="flex justify-center items-center gap-6 text-4xl py-2">
+                                <div>🍎 🍎 🍎</div>
+                                <div class="text-2xl font-bold text-slate-400">:</div>
+                                <div>🍏 🍏</div>
+                            </div>
+                            <p class="text-xs text-slate-600">Ada <strong>3 Apel Merah</strong> dan <strong>2 Apel Hijau</strong>.</p>
+                            <div class="bg-amber-100 text-amber-900 font-extrabold p-3 rounded-xl text-sm">
+                                Rasio Apel Merah terhadap Apel Hijau adalah 3 : 2
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 2,
+                title: "Membandingkan Dua Kelompok Benda",
+                content: `
+                    <div class="space-y-4 text-sm">
+                        <p class="text-slate-700">Dalam kehidupan sehari-hari, kita dapat mengamati dan membandingkan kelompok benda berikut. Jumlah benda visual di bawah ini dibuat <strong>tepat sesuai dengan angka perbandingannya</strong>:</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Contoh 1: 3 Apel dan 2 Jeruk -->
+                            <div class="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm space-y-2">
+                                <div class="flex justify-between items-center border-b pb-1">
+                                    <h5 class="font-bold text-slate-800 text-sm">Buah Segar</h5>
+                                    <span class="text-xs bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-lg">3 : 2</span>
+                                </div>
+                                <div class="flex justify-around items-center bg-slate-50 p-2 rounded-xl text-2xl">
+                                    <div class="text-center">
+                                        <div>🍎 🍎 🍎</div>
+                                        <span class="text-[10px] font-bold text-slate-500">3 Apel</span>
+                                    </div>
+                                    <span class="font-bold text-slate-300">:</span>
+                                    <div class="text-center">
+                                        <div>🍊 🍊</div>
+                                        <span class="text-[10px] font-bold text-slate-500">2 Jeruk</span>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-slate-600">Rasio Apel terhadap Jeruk = <strong>3 : 2</strong></p>
+                            </div>
+
+                            <!-- Contoh 2: 4 Pensil dan 6 Penghapus -->
+                            <div class="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm space-y-2">
+                                <div class="flex justify-between items-center border-b pb-1">
+                                    <h5 class="font-bold text-slate-800 text-sm">Alat Tulis Meja</h5>
+                                    <span class="text-xs bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-lg">4 : 6</span>
+                                </div>
+                                <div class="flex justify-around items-center bg-slate-50 p-2 rounded-xl text-2xl">
+                                    <div class="text-center">
+                                        <div>✏️ ✏️ ✏️ ✏️</div>
+                                        <span class="text-[10px] font-bold text-slate-500">4 Pensil</span>
+                                    </div>
+                                    <span class="font-bold text-slate-300">:</span>
+                                    <div class="text-center">
+                                        <div>🧹 🧹 🧹 🧹 🧹 🧹</div>
+                                        <span class="text-[10px] font-bold text-slate-500">6 Penghapus</span>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-slate-600">Rasio Pensil terhadap Penghapus = <strong>4 : 6</strong></p>
+                            </div>
+
+                            <!-- Contoh 3: 2 Bola Sepak dan 5 Bola Basket -->
+                            <div class="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm space-y-2">
+                                <div class="flex justify-between items-center border-b pb-1">
+                                    <h5 class="font-bold text-slate-800 text-sm">Bola Olahraga</h5>
+                                    <span class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-lg">2 : 5</span>
+                                </div>
+                                <div class="flex justify-around items-center bg-slate-50 p-2 rounded-xl text-2xl">
+                                    <div class="text-center">
+                                        <div>⚽ ⚽</div>
+                                        <span class="text-[10px] font-bold text-slate-500">2 Bola Sepak</span>
+                                    </div>
+                                    <span class="font-bold text-slate-300">:</span>
+                                    <div class="text-center">
+                                        <div>🏀 🏀 🏀 🏀 🏀</div>
+                                        <span class="text-[10px] font-bold text-slate-500">5 Bola Basket</span>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-slate-600">Rasio Bola Sepak terhadap Bola Basket = <strong>2 : 5</strong></p>
+                            </div>
+
+                            <!-- Contoh 4: 5 Bunga Merah dan 3 Bunga Kuning -->
+                            <div class="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm space-y-2">
+                                <div class="flex justify-between items-center border-b pb-1">
+                                    <h5 class="font-bold text-slate-800 text-sm">Bunga Taman</h5>
+                                    <span class="text-xs bg-pink-100 text-pink-800 font-bold px-2 py-0.5 rounded-lg">5 : 3</span>
+                                </div>
+                                <div class="flex justify-around items-center bg-slate-50 p-2 rounded-xl text-2xl">
+                                    <div class="text-center">
+                                        <div>🌸 🌸 🌸 🌸 🌸</div>
+                                        <span class="text-[10px] font-bold text-slate-500">5 Bunga Merah</span>
+                                    </div>
+                                    <span class="font-bold text-slate-300">:</span>
+                                    <div class="text-center">
+                                        <div>🌻 🌻 🌻</div>
+                                        <span class="text-[10px] font-bold text-slate-500">3 Bunga Kuning</span>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-slate-600">Rasio Bunga Merah terhadap Bunga Kuning = <strong>5 : 3</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 3,
+                title: "Mengenal Bahasa & Notasi Rasio",
+                content: `
+                    <div class="space-y-4 text-sm">
+                        <div class="bg-purple-50 p-4 rounded-2xl border border-purple-200 space-y-2">
+                            <h4 class="font-extrabold text-purple-800">Cara Membaca & Menulis Rasio:</h4>
+                            <p class="text-slate-700">Notasi rasio dituliskan menggunakan simbol <strong>titik dua (:)</strong>.</p>
+                            <div class="bg-white p-3 rounded-xl border border-purple-200 font-bold text-center text-purple-900">
+                                3 : 2 dibaca "Tiga dibanding Dua"
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 4,
+                title: "Rasio Dalam Kehidupan Sehari-hari",
+                content: `
+                    <div class="space-y-4 text-sm">
+                        <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-200 space-y-2">
+                            <h4 class="font-extrabold text-emerald-800">Aplikasi di Sekitar Kita:</h4>
+                            <ul class="list-disc list-inside space-y-1 text-slate-700">
+                                <li>Perbandingan siswa laki-laki dan perempuan di kelas.</li>
+                                <li>Perbandingan jumlah buku dan pensil di dalam tas.</li>
+                                <li>Perbandingan roda sepeda motor (2) dan roda mobil (4).</li>
+                            </ul>
+                        </div>
+                    </div>
+                `
+            }
+        ];
+
+        function switchMaterialTab(tabIdx) {
+            appState.currentMaterialTab = tabIdx;
+            renderMaterialTab(tabIdx);
+        }
+
+        function renderMaterialTab(tabIdx) {
+            document.querySelectorAll('.mat-tab-btn').forEach((btn, idx) => {
+                if (idx + 1 === tabIdx) {
+                    btn.className = 'mat-tab-btn bg-blue-500 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-bold shadow transition';
+                } else {
+                    btn.className = 'mat-tab-btn bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition';
+                }
+            });
+
+            const data = materialData[tabIdx - 1];
+            document.getElementById('material-content').innerHTML = `
+                <h3 class="text-xl font-extrabold text-slate-800 mb-3">${data.title}</h3>
+                ${data.content}
+            `;
+
+            document.getElementById('mat-progress').textContent = `Bagian ${tabIdx} dari ${materialData.length}`;
+            addXP(2); // Rewards reading
+        }
+
+        function prevMaterialTab() {
+            if (appState.currentMaterialTab > 1) switchMaterialTab(appState.currentMaterialTab - 1);
+        }
+        function nextMaterialTab() {
+            if (appState.currentMaterialTab < materialData.length) switchMaterialTab(appState.currentMaterialTab + 1);
+        }
+
+        /* ==========================================================================
+           6. MENU EKSPERIMEN RASIO (LAB SIMULATION)
+           ========================================================================== */
+        function switchLabMode(mode) {
+            playSound('click');
+            if (mode === 'mode1') {
+                document.getElementById('lab-mode-1').classList.remove('hidden');
+                document.getElementById('lab-mode-2').classList.add('hidden');
+                document.getElementById('lab-btn-mode1').className = 'lab-mode-btn bg-purple-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow';
+                document.getElementById('lab-btn-mode2').className = 'lab-mode-btn bg-purple-100 text-purple-700 px-3 py-1.5 rounded-xl text-xs font-bold';
+            } else {
+                document.getElementById('lab-mode-1').classList.add('hidden');
+                document.getElementById('lab-mode-2').classList.remove('hidden');
+                document.getElementById('lab-btn-mode1').className = 'lab-mode-btn bg-purple-100 text-purple-700 px-3 py-1.5 rounded-xl text-xs font-bold';
+                document.getElementById('lab-btn-mode2').className = 'lab-mode-btn bg-purple-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow';
+            }
+        }
+
+        function setLabPreset(itemA, itemB, nameA, nameB) {
+            appState.lab.itemA = itemA;
+            appState.lab.itemB = itemB;
+            appState.lab.nameA = nameA;
+            appState.lab.nameB = nameB;
+            renderLabUI();
+        }
+
+        function updateLabCount(group, delta) {
+            if (group === 'A') {
+                appState.lab.countA = Math.max(1, Math.min(10, appState.lab.countA + delta));
+            } else {
+                appState.lab.countB = Math.max(1, Math.min(10, appState.lab.countB + delta));
+            }
+            renderLabUI();
+        }
+
+        function setLabCount(group, val) {
+            const num = parseInt(val) || 1;
+            if (group === 'A') appState.lab.countA = num;
+            else appState.lab.countB = num;
+            renderLabUI();
+        }
+
+        function renderLabUI() {
+            document.getElementById('lab-label-a').textContent = `Kelompok A (${appState.lab.nameA})`;
+            document.getElementById('lab-label-b').textContent = `Kelompok B (${appState.lab.nameB})`;
+            
+            document.getElementById('lab-count-a').textContent = appState.lab.countA;
+            document.getElementById('lab-count-b').textContent = appState.lab.countB;
+
+            document.getElementById('lab-range-a').value = appState.lab.countA;
+            document.getElementById('lab-range-b').value = appState.lab.countB;
+
+            // Render Emoji Icons
+            let htmlA = '';
+            for (let i = 0; i < appState.lab.countA; i++) {
+                htmlA += `<span class="text-3xl animate-bounce-gentle">${appState.lab.itemA}</span>`;
+            }
+            document.getElementById('lab-container-a').innerHTML = htmlA;
+
+            let htmlB = '';
+            for (let i = 0; i < appState.lab.countB; i++) {
+                htmlB += `<span class="text-3xl animate-bounce-gentle">${appState.lab.itemB}</span>`;
+            }
+            document.getElementById('lab-container-b').innerHTML = htmlB;
+
+            // Ratio calculation display
+            document.getElementById('lab-ratio-text').textContent = `${appState.lab.countA} : ${appState.lab.countB}`;
+            document.getElementById('lab-sentence-text').textContent = 
+                `Rasio banyak ${appState.lab.nameA} terhadap banyak ${appState.lab.nameB} adalah ${appState.lab.countA} dibanding ${appState.lab.countB}.`;
+        }
+
+        function playAudioText() {
+            playSound('correct');
+            const text = document.getElementById('lab-sentence-text').textContent;
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'id-ID';
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function checkLabExplanation() {
+            const text = document.getElementById('lab-explain-input').value.toLowerCase();
+            const feedback = document.getElementById('lab-explain-feedback');
+            feedback.classList.remove('hidden');
+
+            if (text.includes('5') && text.includes('3') && (text.includes('rasio') || text.includes('banding'))) {
+                playSound('correct');
+                feedback.className = 'p-4 rounded-2xl text-sm font-bold bg-emerald-100 text-emerald-800 border border-emerald-300';
+                feedback.textContent = '🎉 Hebat sekali! Penjelasanmu sangat tepat. Rasio mobil merah terhadap taksi kuning memang 5 : 3.';
+                addXP(10);
+            } else {
+                playSound('wrong');
+                feedback.className = 'p-4 rounded-2xl text-sm font-bold bg-amber-100 text-amber-800 border border-amber-300';
+                feedback.textContent = '💡 Petunjuk: Pastikan kamu menyebutkan angka 5 (mobil merah) dan 3 (taksi kuning) serta kata perbandingan atau rasio.';
+            }
+        }
+
+        /* ==========================================================================
+           7. GAME INTERAKTIF (GAMIFICATION MINI GAMES - EXACTLY 5 CHALLENGES EACH)
+           ========================================================================== */
+        function startMiniGame(gameId) {
+            showScreen('game-play-screen');
+            appState.game.score = 0;
+            document.getElementById('game-score-display').textContent = `Skor: 0`;
+            clearInterval(appState.game.timer);
+
+            if (gameId === 1) renderGame1Hunter();
+            else if (gameId === 2) renderGame2Memory();
+            else if (gameId === 3) renderGame3Puzzle();
+        }
+
+        // GAME 1: RATIO HUNTER (EXACTLY 5 QUESTIONS)
+        function renderGame1Hunter() {
+            document.getElementById('active-game-title').textContent = 'Game 1: Ratio Hunter (5 Soal)';
+            document.getElementById('game-timer-display').classList.remove('hidden');
+            
+            let currentQ = 0;
+            const questions = [
+                { items: '🍎🍎🍎 vs 🍏🍏', correct: '3 : 2', options: ['3 : 2', '2 : 3', '3 : 3', '2 : 2'] },
+                { items: '✏️✏️✏️✏️ vs 🧹🧹🧹', correct: '4 : 3', options: ['3 : 4', '4 : 3', '4 : 4', '3 : 3'] },
+                { items: '⚽⚽ vs 🏀🏀🏀🏀🏀', correct: '2 : 5', options: ['5 : 2', '2 : 5', '2 : 2', '5 : 5'] },
+                { items: '🌸🌸🌸🌸🌸 vs 🌻🌻🌻', correct: '5 : 3', options: ['3 : 5', '5 : 3', '5 : 5', '3 : 3'] },
+                { items: '🚗🚗🚗 vs 🚕🚕🚕🚕', correct: '3 : 4', options: ['4 : 3', '3 : 4', '3 : 3', '4 : 4'] }
+            ];
+
+            function loadHunterQuestion() {
+                if (currentQ >= questions.length) {
+                    endMiniGame("Selamat! Kamu berhasil menyelesaikan 5 Tantangan Pemburu Rasio!");
+                    return;
+                }
+
+                const q = questions[currentQ];
+                appState.game.timeLeft = 15;
+                document.getElementById('game-timer-display').textContent = `⏳ ${appState.game.timeLeft}s`;
+
+                clearInterval(appState.game.timer);
+                appState.game.timer = setInterval(() => {
+                    appState.game.timeLeft--;
+                    document.getElementById('game-timer-display').textContent = `⏳ ${appState.game.timeLeft}s`;
+                    if (appState.game.timeLeft <= 0) {
+                        clearInterval(appState.game.timer);
+                        playSound('wrong');
+                        currentQ++;
+                        loadHunterQuestion();
+                    }
+                }, 1000);
+
+                let optsHtml = q.options.map(opt => `
+                    <button onclick="answerHunter('${opt}', '${q.correct}')" class="w-full py-3 bg-blue-100 hover:bg-blue-200 text-blue-900 font-extrabold text-lg rounded-2xl border-2 border-blue-300 transition">
+                        ${opt}
+                    </button>
+                `).join('');
+
+                document.getElementById('game-viewport').innerHTML = `
+                    <div class="text-center space-y-4 w-full max-w-md">
+                        <span class="text-xs font-bold text-slate-500 uppercase">Soal ${currentQ + 1} dari ${questions.length}</span>
+                        <div class="text-4xl bg-blue-50 p-4 rounded-2xl border border-blue-200">${q.items}</div>
+                        <p class="font-bold text-slate-700 text-sm">Berapakah rasio benda kelompok pertama dibanding kedua?</p>
+                        <div class="grid grid-cols-2 gap-3">${optsHtml}</div>
+                    </div>
+                `;
+            }
+
+            window.answerHunter = function(ans, correct) {
+                clearInterval(appState.game.timer);
+                if (ans === correct) {
+                    playSound('correct');
+                    appState.game.score += 10;
+                    document.getElementById('game-score-display').textContent = `Skor: ${appState.game.score}`;
+                    addXP(10);
+                } else {
+                    playSound('wrong');
+                }
+                currentQ++;
+                loadHunterQuestion();
+            };
+
+            loadHunterQuestion();
+        }
+
+        // GAME 2: MEMORY MATCH (EXACTLY 5 PAIRS OF CARDS = 10 CARDS)
+        function renderGame2Memory() {
+            document.getElementById('active-game-title').textContent = 'Game 2: Ratio Memory Match (5 Pasang Kartu)';
+            document.getElementById('game-timer-display').classList.add('hidden');
+
+            const cardsData = [
+                { id: 1, val: '🍎🍎 (2 : 1) 🍏', pair: 1 },
+                { id: 2, val: '2 : 1', pair: 1 },
+                { id: 3, val: '✏️✏️✏️ (3 : 2) 🧹🧹', pair: 2 },
+                { id: 4, val: '3 : 2', pair: 2 },
+                { id: 5, val: '⚽ (1 : 4) 🏀🏀🏀🏀', pair: 3 },
+                { id: 6, val: '1 : 4', pair: 3 },
+                { id: 7, val: '🌸🌸🌸🌸🌸 (5 : 3) 🌻🌻🌻', pair: 4 },
+                { id: 8, val: '5 : 3', pair: 4 },
+                { id: 9, val: '🚗🚗🚗 (3 : 4) 🚕🚕🚕🚕', pair: 5 },
+                { id: 10, val: '3 : 4', pair: 5 }
+            ].sort(() => Math.random() - 0.5);
+
+            let flipped = [];
+            let matched = 0;
+
+            let cardsHtml = cardsData.map((c, idx) => `
+                <div onclick="flipCard(${idx})" id="card-${idx}" class="w-full h-20 sm:h-24 bg-purple-600 hover:bg-purple-700 text-white rounded-2xl flex items-center justify-center font-bold text-sm cursor-pointer shadow border-b-4 border-purple-900 transition">
+                    ❓
+                </div>
+            `).join('');
+
+            document.getElementById('game-viewport').innerHTML = `
+                <div class="w-full max-w-xl space-y-4">
+                    <p class="text-xs text-center text-slate-600 font-bold">Cocokkan 5 pasangan gambar benda dengan notasi rasionya!</p>
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5">${cardsHtml}</div>
+                </div>
+            `;
+
+            window.flipCard = function(idx) {
+                if (flipped.length >= 2) return;
+                const cardEl = document.getElementById(`card-${idx}`);
+                const card = cardsData[idx];
+
+                if (cardEl.dataset.matched === 'true' || flipped.includes(idx)) return;
+
+                playSound('click');
+                cardEl.textContent = card.val;
+                cardEl.className = 'w-full h-20 sm:h-24 bg-white text-purple-900 border-2 border-purple-400 rounded-2xl flex items-center justify-center font-bold text-[11px] sm:text-xs p-1 text-center shadow';
+                flipped.push(idx);
+
+                if (flipped.length === 2) {
+                    const c1 = cardsData[flipped[0]];
+                    const c2 = cardsData[flipped[1]];
+
+                    if (c1.pair === c2.pair) {
+                        playSound('correct');
+                        document.getElementById(`card-${flipped[0]}`).dataset.matched = 'true';
+                        document.getElementById(`card-${flipped[1]}`).dataset.matched = 'true';
+                        matched++;
+                        appState.game.score += 10;
+                        document.getElementById('game-score-display').textContent = `Skor: ${appState.game.score}`;
+                        addXP(10);
+                        flipped = [];
+                        if (matched === cardsData.length / 2) {
+                            setTimeout(() => endMiniGame("Luar Biasa! Kamu berhasil mencocokkan kelima pasang kartu!"), 500);
+                        }
+                    } else {
+                        playSound('wrong');
+                        setTimeout(() => {
+                            [flipped[0], flipped[1]].forEach(i => {
+                                const el = document.getElementById(`card-${i}`);
+                                el.textContent = '❓';
+                                el.className = 'w-full h-20 sm:h-24 bg-purple-600 hover:bg-purple-700 text-white rounded-2xl flex items-center justify-center font-bold text-sm cursor-pointer shadow border-b-4 border-purple-900 transition';
+                            });
+                            flipped = [];
+                        }, 1000);
+                    }
+                }
+            };
+        }
+
+        // GAME 3: PUZZLE ADVENTURE (EXACTLY 5 DRAG AND DROP CHALLENGES)
+        function renderGame3Puzzle() {
+            document.getElementById('active-game-title').textContent = 'Game 3: Ratio Puzzle Adventure (5 Tantangan)';
+            document.getElementById('game-timer-display').classList.add('hidden');
+
+            let currentPuzzleIdx = 0;
+            const puzzleChallenges = [
+                { items: '🌸 🌸 🌸 🌸 🌸 vs 🌻 🌻 🌻', desc: '5 Bunga Merah vs 3 Bunga Kuning', correct: '5 : 3', options: ['5 : 3', '3 : 5', '5 : 5'] },
+                { items: '🍎 🍎 🍎 vs 🍏 🍏', desc: '3 Apel Merah vs 2 Apel Hijau', correct: '3 : 2', options: ['2 : 3', '3 : 2', '3 : 3'] },
+                { items: '⚽ ⚽ vs 🏀 🏀 🏀 🏀 🏀', desc: '2 Bola Sepak vs 5 Bola Basket', correct: '2 : 5', options: ['5 : 2', '2 : 5', '2 : 2'] },
+                { items: '✏️ ✏️ ✏️ ✏️ vs 🧹 🧹 🧹', desc: '4 Pensil vs 3 Penghapus', correct: '4 : 3', options: ['4 : 3', '3 : 4', '4 : 4'] },
+                { items: '🚗 🚗 🚗 vs 🚕 🚕 🚕 🚕', desc: '3 Mobil Merah vs 4 Taksi Kuning', correct: '3 : 4', options: ['4 : 3', '3 : 4', '3 : 3'] }
+            ];
+
+            function loadPuzzleChallenge() {
+                if (currentPuzzleIdx >= puzzleChallenges.length) {
+                    endMiniGame("Hebat! Kamu berhasil menyelesaikan 5 Tantangan Puzzle Rasio!");
+                    return;
+                }
+
+                const puzzle = puzzleChallenges[currentPuzzleIdx];
+
+                let optsHtml = puzzle.options.map(opt => `
+                    <div draggable="true" ondragstart="handleDragStart(event)" onclick="selectPuzzleOption('${opt}')" data-val="${opt}" class="draggable-item bg-amber-500 hover:bg-amber-600 text-white px-5 py-3 rounded-2xl font-extrabold shadow cursor-grab active:cursor-grabbing text-center">
+                        ${opt}
+                    </div>
+                `).join('');
+
+                document.getElementById('game-viewport').innerHTML = `
+                    <div class="text-center space-y-5 w-full max-w-md">
+                        <span class="text-xs font-bold text-slate-500 uppercase">Tantangan ${currentPuzzleIdx + 1} dari ${puzzleChallenges.length}</span>
+                        <div class="bg-amber-50 p-5 rounded-2xl border-2 border-amber-200 space-y-1">
+                            <div class="text-3xl sm:text-4xl">${puzzle.items}</div>
+                            <p class="text-xs font-bold text-slate-700">${puzzle.desc}</p>
+                        </div>
+
+                        <!-- Drop Target -->
+                        <div id="drop-target" ondragover="allowDrop(event)" ondrop="handleDrop(event)" class="drop-zone w-full h-20 rounded-2xl border-4 border-dashed border-slate-300 flex items-center justify-center font-extrabold text-slate-400 text-sm sm:text-base">
+                            Taruh / Klik Jawaban Di Sini
+                        </div>
+
+                        <!-- Draggable Options -->
+                        <div class="flex justify-center gap-3">${optsHtml}</div>
+                    </div>
+                `;
+
+                window.allowDrop = function(ev) { ev.preventDefault(); };
+                window.handleDragStart = function(ev) { ev.dataTransfer.setData("text", ev.target.dataset.val); };
+                
+                window.handleDrop = function(ev) {
+                    ev.preventDefault();
+                    const val = ev.dataTransfer.getData("text");
+                    processPuzzleAnswer(val);
+                };
+
+                window.selectPuzzleOption = function(val) {
+                    processPuzzleAnswer(val);
+                };
+
+                function processPuzzleAnswer(val) {
+                    const target = document.getElementById('drop-target');
+                    if (!target) return;
+                    target.textContent = val;
+
+                    if (val === puzzle.correct) {
+                        playSound('correct');
+                        target.className = "w-full h-20 rounded-2xl border-4 border-solid border-emerald-500 bg-emerald-50 text-emerald-800 flex items-center justify-center font-black text-2xl shadow";
+                        appState.game.score += 10;
+                        document.getElementById('game-score-display').textContent = `Skor: ${appState.game.score}`;
+                        addXP(10);
+                        setTimeout(() => {
+                            currentPuzzleIdx++;
+                            loadPuzzleChallenge();
+                        }, 800);
+                    } else {
+                        playSound('wrong');
+                        target.className = "w-full h-20 rounded-2xl border-4 border-solid border-red-500 bg-red-50 text-red-800 flex items-center justify-center font-black text-xl shadow";
+                        setTimeout(() => {
+                            target.className = "drop-zone w-full h-20 rounded-2xl border-4 border-dashed border-slate-300 flex items-center justify-center font-extrabold text-slate-400 text-sm sm:text-base";
+                            target.textContent = "Coba lagi! Taruh / Klik Jawaban Di Sini";
+                        }, 1000);
+                    }
+                }
+            }
+
+            loadPuzzleChallenge();
+        }
+
+        function endMiniGame(msg) {
+            document.getElementById('game-viewport').innerHTML = `
+                <div class="text-center space-y-4">
+                    <div class="text-5xl">🏆</div>
+                    <h3 class="text-2xl font-black text-slate-800">${msg}</h3>
+                    <p class="text-slate-600 font-bold">Total Skor Game: ${appState.game.score}</p>
+                    <button onclick="showScreen('game-menu-screen')" class="bg-pink-500 hover:bg-pink-600 text-white font-bold px-6 py-3 rounded-2xl shadow transition">Kembali ke Menu Game</button>
+                </div>
+            `;
+        }
+
+        /* ==========================================================================
+           8. LATIHAN SOAL FORMATIF
+           ========================================================================== */
+        const practiceQuestions = [
+            { q: "Di dalam keranjang terdapat 5 mangga dan 3 apel. Berapakah rasio banyak mangga terhadap apel?", opts: ["3 : 5", "5 : 3", "5 : 5", "3 : 3"], correct: 1, explanation: "Karena mangga ada 5 dan apel ada 3, maka rasionya adalah 5 : 3." },
+            { q: "Rasio 4 : 2 dibaca sebagai...", opts: ["Dua dibanding empat", "Empat dibanding dua", "Empat dikurang dua", "Dua ditambah empat"], correct: 1, explanation: "Simbol : dibaca dibanding, sehingga 4 : 2 adalah empat dibanding dua." },
+            { q: "Ada 2 bola merah dan 5 bola biru. Rasio bola merah terhadap bola biru adalah...", opts: ["5 : 2", "2 : 5", "2 : 2", "5 : 5"], correct: 1, explanation: "Jumlah bola merah (2) dibanding bola biru (5) = 2 : 5." }
+        ];
+
+        function initPracticeModule() {
+            appState.practice.currentIdx = 0;
+            appState.practice.lives = 3;
+            renderPracticeQuestion();
+        }
+
+        function renderPracticeQuestion() {
+            const q = practiceQuestions[appState.practice.currentIdx];
+            document.getElementById('practice-lives').textContent = '❤️'.repeat(appState.practice.lives);
+            document.getElementById('practice-progress').textContent = `Soal ${appState.practice.currentIdx + 1} dari ${practiceQuestions.length}`;
+            document.getElementById('practice-next-btn').classList.add('hidden');
+
+            let optsHtml = q.opts.map((opt, idx) => `
+                <button onclick="submitPracticeAnswer(${idx})" class="opt-btn w-full p-4 bg-white hover:bg-amber-50 text-slate-800 font-bold rounded-2xl border-2 border-slate-200 text-left transition shadow-sm flex items-center justify-between">
+                    <span>${opt}</span>
+                    <i class="fas fa-circle text-slate-300"></i>
+                </button>
+            `).join('');
+
+            document.getElementById('practice-viewport').innerHTML = `
+                <div class="bg-white p-6 rounded-3xl border-2 border-amber-200 space-y-4 shadow-sm">
+                    <h3 class="text-base sm:text-lg font-extrabold text-slate-800">${q.q}</h3>
+                    <div class="space-y-3">${optsHtml}</div>
+                    <div id="practice-feedback" class="hidden p-4 rounded-2xl text-xs sm:text-sm font-bold"></div>
+                </div>
+            `;
+        }
+
+        function submitPracticeAnswer(optIdx) {
+            const q = practiceQuestions[appState.practice.currentIdx];
+            const feedback = document.getElementById('practice-feedback');
+            feedback.classList.remove('hidden');
+
+            document.querySelectorAll('.opt-btn').forEach(btn => btn.disabled = true);
+
+            if (optIdx === q.correct) {
+                playSound('correct');
+                feedback.className = "p-4 rounded-2xl text-xs sm:text-sm font-bold bg-emerald-100 text-emerald-800 border border-emerald-300";
+                feedback.textContent = `🎉 Benar! ${q.explanation}`;
+                addXP(10);
+            } else {
+                playSound('wrong');
+                appState.practice.lives--;
+                document.getElementById('practice-lives').textContent = '❤️'.repeat(Math.max(0, appState.practice.lives));
+                feedback.className = "p-4 rounded-2xl text-xs sm:text-sm font-bold bg-red-100 text-red-800 border border-red-300";
+                feedback.textContent = `❌ Belum tepat. ${q.explanation}`;
+            }
+
+            document.getElementById('practice-next-btn').classList.remove('hidden');
+        }
+
+        function nextPracticeQuestion() {
+            if (appState.practice.lives <= 0) {
+                alert("Kesempatanmu habis! Mari ulangi latihan.");
+                initPracticeModule();
+                return;
+            }
+            appState.practice.currentIdx++;
+            if (appState.practice.currentIdx < practiceQuestions.length) {
+                renderPracticeQuestion();
+            } else {
+                alert("Selamat! Kamu menyelesaikan latihan formatif.");
+                showScreen('dashboard-screen');
+            }
+        }
+
+        /* ==========================================================================
+           9. UJIAN AKHIR (ASESMEN SUMATIF)
+           ========================================================================== */
+        const examBank = [
+            { q: "Di kelas terdapat 12 siswa laki-laki dan 15 siswa perempuan. Rasio siswa laki-laki terhadap perempuan adalah...", opts: ["15 : 12", "12 : 15", "12 : 12", "15 : 15"], correct: 1 },
+            { q: "Ibu membeli 3 kg jeruk dan 5 kg apel. Perbandingan jeruk dan apel yang dibeli ibu adalah...", opts: ["5 : 3", "3 : 5", "3 : 3", "5 : 5"], correct: 1 },
+            { q: "Rasio 5 : 4 artinya...", opts: ["Terdapat 5 benda pertama untuk setiap 4 benda kedua", "Terdapat 4 benda pertama untuk setiap 5 benda kedua", "Jumlah benda pertama dikurang 4", "Benda pertama ditambah 4"], correct: 0 },
+            { q: "Dalam tempat parkir ada 4 mobil dan 2 motor. Rasio mobil terhadap motor adalah...", opts: ["2 : 4", "4 : 2", "4 : 4", "2 : 2"], correct: 1 }
+        ];
+
+        function startOfficialExam() {
+            document.getElementById('exam-start-panel').classList.add('hidden');
+            document.getElementById('exam-active-panel').classList.remove('hidden');
+            document.getElementById('exam-result-panel').classList.add('hidden');
+
+            appState.exam.questions = [...examBank].sort(() => Math.random() - 0.5);
+            appState.exam.answers = new Array(appState.exam.questions.length).fill(null);
+            appState.exam.currentIdx = 0;
+            appState.exam.timeLeft = 1200;
+
+            renderExamQuestion();
+
+            clearInterval(appState.exam.timer);
+            appState.exam.timer = setInterval(() => {
+                appState.exam.timeLeft--;
+                const m = Math.floor(appState.exam.timeLeft / 60).toString().padStart(2, '0');
+                const s = (appState.exam.timeLeft % 60).toString().padStart(2, '0');
+                document.getElementById('exam-timer').textContent = `⏱️ Waktu Sisa: ${m}:${s}`;
+
+                if (appState.exam.timeLeft <= 0) {
+                    clearInterval(appState.exam.timer);
+                    finishExam();
+                }
+            }, 1000);
+        }
+
+        function renderExamQuestion() {
+            const idx = appState.exam.currentIdx;
+            const q = appState.exam.questions[idx];
+
+            document.getElementById('exam-question-num').textContent = `Soal ${idx + 1} / ${appState.exam.questions.length}`;
+
+            let optsHtml = q.opts.map((opt, oIdx) => {
+                const checked = appState.exam.answers[idx] === oIdx ? 'checked border-red-500 bg-red-50' : 'border-slate-200';
+                return `
+                    <label onclick="selectExamAnswer(${oIdx})" class="block p-4 rounded-2xl border-2 ${checked} cursor-pointer hover:bg-slate-50 transition font-bold text-sm">
+                        <input type="radio" name="exam-opt" ${appState.exam.answers[idx] === oIdx ? 'checked' : ''} class="hidden">
+                        <span>${String.fromCharCode(65 + oIdx)}. ${opt}</span>
+                    </label>
+                `;
+            }).join('');
+
+            document.getElementById('exam-question-card').innerHTML = `
+                <h4 class="font-extrabold text-slate-800 text-base">${idx + 1}. ${q.q}</h4>
+                <div class="space-y-3 pt-2">${optsHtml}</div>
+            `;
+
+            // Navigation buttons
+            document.getElementById('exam-prev-btn').classList.toggle('hidden', idx === 0);
+            if (idx === appState.exam.questions.length - 1) {
+                document.getElementById('exam-next-btn').classList.add('hidden');
+                document.getElementById('exam-submit-btn').classList.remove('hidden');
+            } else {
+                document.getElementById('exam-next-btn').classList.remove('hidden');
+                document.getElementById('exam-submit-btn').classList.add('hidden');
+            }
+        }
+
+        function selectExamAnswer(oIdx) {
+            playSound('click');
+            appState.exam.answers[appState.exam.currentIdx] = oIdx;
+            renderExamQuestion();
+        }
+
+        function prevExamQuestion() {
+            if (appState.exam.currentIdx > 0) {
+                appState.exam.currentIdx--;
+                renderExamQuestion();
+            }
+        }
+
+        function nextExamQuestion() {
+            if (appState.exam.currentIdx < appState.exam.questions.length - 1) {
+                appState.exam.currentIdx++;
+                renderExamQuestion();
+            }
+        }
+
+        function confirmSubmitExam() {
+            if (confirm("Apakah kamu yakin ingin menyelesaikan ujian dan mengirim jawabanmu?")) {
+                finishExam();
+            }
+        }
+
+        function finishExam() {
+            clearInterval(appState.exam.timer);
+            document.getElementById('exam-active-panel').classList.add('hidden');
+            document.getElementById('exam-result-panel').classList.remove('hidden');
+
+            let correctCount = 0;
+            appState.exam.questions.forEach((q, idx) => {
+                if (appState.exam.answers[idx] === q.correct) correctCount++;
+            });
+
+            const score = Math.round((correctCount / appState.exam.questions.length) * 100);
+            let predicate = 'Perlu Bimbingan';
+            if (score >= 90) predicate = 'Paham Utuh 🌟';
+            else if (score >= 75) predicate = 'Paham Baik 👍';
+            else if (score >= 60) predicate = 'Mulai Berkembang 🌱';
+
+            document.getElementById('res-score').textContent = score;
+            document.getElementById('res-correct').textContent = `${correctCount} / ${appState.exam.questions.length - correctCount}`;
+            document.getElementById('res-time').textContent = 'Selesai';
+            document.getElementById('res-predicate').textContent = predicate;
+            document.getElementById('cert-name').textContent = appState.user.name || 'Penjelajah Matematika';
+
+            addXP(score);
+        }
+
+        /* ==========================================================================
+           INITIALIZATION ON PAGE LOAD
+           ========================================================================== */
+        window.addEventListener('DOMContentLoaded', () => {
+            loadStorageData();
+            if (appState.user.name) {
+                showScreen('dashboard-screen');
+            } else {
+                showScreen('login-screen');
+            }
+        });
+    </script>
+</body>
+</html>
